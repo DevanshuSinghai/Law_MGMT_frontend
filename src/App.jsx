@@ -43,7 +43,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ConfigProvider theme={antTheme}>
         <AntApp>
-          <BrowserRouter>
+          <BrowserRouter basename="/law-mgmt">
             <AppRoutes />
           </BrowserRouter>
         </AntApp>

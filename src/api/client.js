@@ -80,7 +80,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed - clear tokens and redirect to login
         clearTokens();
-        window.location.href = '/login';
+        window.location.href = '/law-mgmt/login';
         return Promise.reject(refreshError);
       }
     }
