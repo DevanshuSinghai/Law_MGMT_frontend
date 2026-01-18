@@ -234,6 +234,7 @@ const DocumentsPage = () => {
                         showSizeChanger: true,
                         showTotal: (total) => `Total ${total} documents`,
                     }}
+                    scroll={{ x: 800 }}
                 />
             </Card>
 

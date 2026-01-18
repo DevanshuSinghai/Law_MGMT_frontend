@@ -12,6 +12,7 @@ import {
     Typography,
     theme,
     Button,
+    Drawer,
 } from 'antd';
 import {
     DashboardOutlined,
@@ -24,6 +25,7 @@ import {
     LogoutOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    MenuOutlined,
 } from '@ant-design/icons';
 import { useAuthStore, useUIStore } from '../../stores';
 
@@ -36,18 +38,25 @@ const MainLayout = () => {
     const { token } = theme.useToken();
 
     const { user, logout, isManager } = useAuthStore();
-    const { sidebarCollapsed, toggleSidebar, isMobile, setIsMobile } = useUIStore();
+    const { sidebarCollapsed, toggleSidebar, setSidebarCollapsed, isMobile, setIsMobile } = useUIStore();
 
     const [selectedKey, setSelectedKey] = useState('dashboard');
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     // Handle responsive
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            // Auto-collapse sidebar on mobile
+            if (mobile && !sidebarCollapsed) {
+                setSidebarCollapsed(true);
+            }
         };
+        handleResize(); // Check on mount
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [setIsMobile]);
+    }, [setIsMobile, setSidebarCollapsed, sidebarCollapsed]);
 
     // Update selected key based on location
     useEffect(() => {
@@ -60,48 +69,56 @@ const MainLayout = () => {
         navigate('/login');
     };
 
+    const handleMenuClick = (path) => {
+        navigate(path);
+        // Close drawer on mobile after navigation
+        if (isMobile) {
+            setDrawerOpen(false);
+        }
+    };
+
     const menuItems = [
         {
             key: 'dashboard',
             icon: <DashboardOutlined />,
             label: 'Dashboard',
-            onClick: () => navigate('/dashboard'),
+            onClick: () => handleMenuClick('/dashboard'),
         },
         {
             key: 'cases',
             icon: <FolderOutlined />,
             label: 'Cases',
-            onClick: () => navigate('/cases'),
+            onClick: () => handleMenuClick('/cases'),
         },
         {
             key: 'clients',
             icon: <TeamOutlined />,
             label: 'Clients',
-            onClick: () => navigate('/clients'),
+            onClick: () => handleMenuClick('/clients'),
         },
         {
             key: 'documents',
             icon: <FileTextOutlined />,
             label: 'Documents',
-            onClick: () => navigate('/documents'),
+            onClick: () => handleMenuClick('/documents'),
         },
         {
             key: 'tasks',
             icon: <CheckSquareOutlined />,
             label: 'Tasks',
-            onClick: () => navigate('/tasks'),
+            onClick: () => handleMenuClick('/tasks'),
         },
         ...(isManager() ? [{
             key: 'team',
             icon: <UserOutlined />,
             label: 'Team',
-            onClick: () => navigate('/team'),
+            onClick: () => handleMenuClick('/team'),
         }] : []),
         {
             key: 'settings',
             icon: <SettingOutlined />,
             label: 'Settings',
-            onClick: () => navigate('/settings'),
+            onClick: () => handleMenuClick('/settings'),
         },
     ];
 
@@ -124,62 +141,112 @@ const MainLayout = () => {
         },
     ];
 
-    return (
-        <Layout style={{ minHeight: '100vh' }}>
-            <Sider
-                trigger={null}
-                collapsible
-                collapsed={sidebarCollapsed}
-                breakpoint="lg"
-                collapsedWidth={isMobile ? 0 : 80}
+    // Sidebar content (shared between Sider and Drawer)
+    const SidebarContent = () => (
+        <>
+            <div
                 style={{
-                    overflow: 'auto',
-                    height: '100vh',
-                    position: 'fixed',
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    zIndex: 100,
+                    height: 64,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderBottom: '1px solid rgba(255,255,255,0.1)',
                 }}
             >
-                <div
+                <Text
+                    strong
                     style={{
-                        height: 64,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderBottom: '1px solid rgba(255,255,255,0.1)',
+                        color: '#fff',
+                        fontSize: 18,
+                        whiteSpace: 'nowrap',
                     }}
                 >
-                    <Text
-                        strong
+                    Legal Mgmt
+                </Text>
+            </div>
+            <Menu
+                theme="dark"
+                mode="inline"
+                selectedKeys={[selectedKey]}
+                items={menuItems}
+                style={{ borderRight: 0 }}
+            />
+        </>
+    );
+
+    return (
+        <Layout style={{ minHeight: '100vh' }}>
+            {/* Desktop Sidebar */}
+            {!isMobile && (
+                <Sider
+                    trigger={null}
+                    collapsible
+                    collapsed={sidebarCollapsed}
+                    breakpoint="lg"
+                    collapsedWidth={80}
+                    style={{
+                        overflow: 'auto',
+                        height: '100vh',
+                        position: 'fixed',
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        zIndex: 100,
+                    }}
+                >
+                    <div
                         style={{
-                            color: '#fff',
-                            fontSize: sidebarCollapsed ? 16 : 18,
-                            whiteSpace: 'nowrap',
+                            height: 64,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderBottom: '1px solid rgba(255,255,255,0.1)',
                         }}
                     >
-                        {sidebarCollapsed ? 'LM' : 'Legal Mgmt'}
-                    </Text>
-                </div>
-                <Menu
-                    theme="dark"
-                    mode="inline"
-                    selectedKeys={[selectedKey]}
-                    items={menuItems}
-                    style={{ borderRight: 0 }}
-                />
-            </Sider>
+                        <Text
+                            strong
+                            style={{
+                                color: '#fff',
+                                fontSize: sidebarCollapsed ? 16 : 18,
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {sidebarCollapsed ? 'LM' : 'Legal Mgmt'}
+                        </Text>
+                    </div>
+                    <Menu
+                        theme="dark"
+                        mode="inline"
+                        selectedKeys={[selectedKey]}
+                        items={menuItems}
+                        style={{ borderRight: 0 }}
+                    />
+                </Sider>
+            )}
+
+            {/* Mobile Drawer */}
+            <Drawer
+                placement="left"
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                size={250}
+                styles={{
+                    body: { padding: 0, background: '#001529' },
+                    header: { display: 'none' },
+                }}
+            >
+                <SidebarContent />
+            </Drawer>
 
             <Layout
                 style={{
-                    marginLeft: sidebarCollapsed ? (isMobile ? 0 : 80) : 200,
+                    marginLeft: isMobile ? 0 : (sidebarCollapsed ? 80 : 200),
                     transition: 'margin-left 0.2s',
                 }}
             >
                 <Header
                     style={{
-                        padding: '0 24px',
+                        padding: isMobile ? '0 12px' : '0 24px',
                         background: token.colorBgContainer,
                         display: 'flex',
                         alignItems: 'center',
@@ -190,15 +257,25 @@ const MainLayout = () => {
                         zIndex: 99,
                     }}
                 >
-                    <Button
-                        type="text"
-                        icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                        onClick={toggleSidebar}
-                        style={{ fontSize: 16 }}
-                    />
+                    {isMobile ? (
+                        <Button
+                            type="text"
+                            icon={<MenuOutlined />}
+                            onClick={() => setDrawerOpen(true)}
+                            style={{ fontSize: 18 }}
+                        />
+                    ) : (
+                        <Button
+                            type="text"
+                            icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                            onClick={toggleSidebar}
+                            style={{ fontSize: 16 }}
+                        />
+                    )}
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                        {user?.firm && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 16 }}>
+                        {/* Hide firm name on mobile */}
+                        {!isMobile && user?.firm && (
                             <Text type="secondary" style={{ marginRight: 8 }}>
                                 {user.firm.name}
                             </Text>
@@ -216,7 +293,7 @@ const MainLayout = () => {
                                     style={{ backgroundColor: token.colorPrimary }}
                                     icon={<UserOutlined />}
                                 />
-                                <Text strong>{user?.first_name || 'User'}</Text>
+                                {!isMobile && <Text strong>{user?.first_name || 'User'}</Text>}
                             </div>
                         </Dropdown>
                     </div>
@@ -224,8 +301,8 @@ const MainLayout = () => {
 
                 <Content
                     style={{
-                        margin: 24,
-                        padding: 24,
+                        margin: isMobile ? 12 : 24,
+                        padding: isMobile ? 16 : 24,
                         background: token.colorBgContainer,
                         borderRadius: token.borderRadiusLG,
                         minHeight: 280,

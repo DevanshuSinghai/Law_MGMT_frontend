@@ -165,6 +165,7 @@ const ClientsPage = () => {
                         showSizeChanger: true,
                         showTotal: (total) => `Total ${total} clients`,
                     }}
+                    scroll={{ x: 700 }}
                 />
             </Card>
         </div>

@@ -63,7 +63,123 @@ html, body {
     margin: 12px !important;
     padding: 16px !important;
   }
+
+  /* Reduce page title size on mobile */
+  .ant-typography h3 {
+    font-size: 20px !important;
+  }
+
+  /* Tighter card padding on mobile */
+  .ant-card-body {
+    padding: 12px !important;
+  }
+
+  /* Smaller stat cards on mobile */
+  .ant-statistic-title {
+    font-size: 12px !important;
+  }
+
+  .ant-statistic-content-value {
+    font-size: 20px !important;
+  }
+
+  /* Table improvements for mobile */
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .ant-table {
+    font-size: 13px;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 8px 8px !important;
+  }
+
+  /* Larger touch targets for buttons */
+  .ant-btn {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
+
+  .ant-btn-icon-only {
+    min-width: 36px;
+  }
+
+  /* Modal adjustments for mobile */
+  .ant-modal {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px auto !important;
+  }
+
+  .ant-modal-body {
+    padding: 16px !important;
+  }
+
+  /* Form adjustments */
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  /* Tag size adjustment */
+  .ant-tag {
+    font-size: 11px;
+    padding: 0 6px;
+  }
+
+  /* List item padding */
+  .ant-list-item {
+    padding: 8px 0 !important;
+  }
+
+  /* Descriptions for mobile */
+  .ant-descriptions-item-label,
+  .ant-descriptions-item-content {
+    font-size: 13px !important;
+  }
+
+  /* Search input full width on very small screens */
+  .ant-input-affix-wrapper {
+    width: 100%;
+  }
+
+  /* Pagination simpler on mobile */
+  .ant-pagination-options {
+    display: none;
+  }
 }
+
+/* Extra small screens (< 480px) */
+@media (max-width: 480px) {
+  .ant-layout-content {
+    margin: 8px !important;
+    padding: 12px !important;
+  }
+
+  .ant-card-body {
+    padding: 10px !important;
+  }
+
+  .ant-statistic-content-value {
+    font-size: 18px !important;
+  }
+
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 6px 4px !important;
+  }
+
+  /* Stack filter controls */
+  .ant-select {
+    width: 100% !important;
+  }
+}
+
 
 /* Animation classes */
 .fade-in {

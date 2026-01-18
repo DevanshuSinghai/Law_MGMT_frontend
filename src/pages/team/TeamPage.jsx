@@ -248,6 +248,7 @@ const TeamPage = () => {
                     pagination={{
                         showTotal: (total) => `Total ${total} members`,
                     }}
+                    scroll={{ x: 700 }}
                 />
             </Card>
 
@@ -270,7 +271,7 @@ const TeamPage = () => {
                     initialValues={{ role: 'lawyer', can_assign_tasks: false }}
                 >
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="first_name"
                                 label="First Name"
@@ -279,7 +280,7 @@ const TeamPage = () => {
                                 <Input placeholder="First name" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="last_name"
                                 label="Last Name"
@@ -317,12 +318,12 @@ const TeamPage = () => {
                     </Form.Item>
 
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="role" label="Role" rules={[{ required: true }]}>
                                 <Select options={roleOptions} />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="can_assign_tasks"
                                 label="Can Assign Tasks"

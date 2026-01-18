@@ -327,6 +327,7 @@ const TasksPage = () => {
                         showSizeChanger: true,
                         showTotal: (total) => `Total ${total} tasks`,
                     }}
+                    scroll={{ x: 800 }}
                 />
             </Card>
 
