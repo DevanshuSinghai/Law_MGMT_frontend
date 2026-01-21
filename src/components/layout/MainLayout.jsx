@@ -161,7 +161,7 @@ const MainLayout = () => {
                         whiteSpace: 'nowrap',
                     }}
                 >
-                    Legal Mgmt
+                    Legal Management
                 </Text>
             </div>
             <Menu
@@ -211,7 +211,7 @@ const MainLayout = () => {
                                 whiteSpace: 'nowrap',
                             }}
                         >
-                            {sidebarCollapsed ? 'LM' : 'Legal Mgmt'}
+                            {sidebarCollapsed ? 'LM' : 'Legal Management'}
                         </Text>
                     </div>
                     <Menu
@@ -275,7 +275,7 @@ const MainLayout = () => {
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 16 }}>
                         {/* Hide firm name on mobile */}
-                        {!isMobile && user?.firm && (
+                        {user?.firm && (
                             <Text type="secondary" style={{ marginRight: 8 }}>
                                 {user.firm.name}
                             </Text>
