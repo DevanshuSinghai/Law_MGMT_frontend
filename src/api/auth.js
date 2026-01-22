@@ -68,7 +68,7 @@ export const authApi = {
     return response.data;
   },
 
-  // Change password
+  // Change password (for logged-in users)
   changePassword: async (oldPassword, newPassword) => {
     const response = await api.post('/auth/change-password/', {
       old_password: oldPassword,
@@ -77,6 +77,24 @@ export const authApi = {
     });
     return response.data;
   },
+
+  // Request password reset (forgot password)
+  requestPasswordReset: async (email) => {
+    const response = await api.post('/auth/password-reset/', { email });
+    alert(response.data.message);
+    return response.data;
+  },
+
+  // Confirm password reset with token
+  confirmPasswordReset: async (token, newPassword) => {
+    const response = await api.post('/auth/password-reset/confirm/', {
+      token,
+      new_password: newPassword,
+      new_password_confirm: newPassword,
+    });
+    return response.data;
+  },
 };
 
 export default authApi;
+

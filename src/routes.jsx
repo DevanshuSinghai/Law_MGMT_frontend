@@ -13,6 +13,8 @@ import AuthLayout from './components/layout/AuthLayout';
 // Auth pages
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 
 // Main pages
 import DashboardPage from './pages/DashboardPage';
@@ -86,6 +88,24 @@ const AppRoutes = () => {
                             <RegisterPage />
                         </AuthLayout>
                     </PublicRoute>
+                }
+            />
+            <Route
+                path="/forgot-password"
+                element={
+                    <PublicRoute>
+                        <AuthLayout>
+                            <ForgotPasswordPage />
+                        </AuthLayout>
+                    </PublicRoute>
+                }
+            />
+            <Route
+                path="/reset-password"
+                element={
+                    <AuthLayout>
+                        <ResetPasswordPage />
+                    </AuthLayout>
                 }
             />
 
