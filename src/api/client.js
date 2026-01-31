@@ -85,6 +85,12 @@ api.interceptors.response.use(
       }
     }
 
+    // If 401 and no refresh token, redirect to login
+    if (error.response?.status === 401 && !refreshToken) {
+      clearTokens();
+      window.location.href = '/law-mgmt/login';
+    }
+
     return Promise.reject(error);
   }
 );
