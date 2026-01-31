@@ -11,6 +11,12 @@ export const clientsApi = {
     return response.data;
   },
 
+  // Fetch all clients for dropdown selection without pagination
+  listAll: async (params = {}) => {
+    const response = await api.get('/clients/select/', { params });
+    return response.data;
+  },
+  
   // Get single client
   get: async (id) => {
     const response = await api.get(`/clients/${id}/`);
@@ -19,8 +25,12 @@ export const clientsApi = {
 
   // Create client
   create: async (data) => {
-    const response = await api.post('/clients/', data);
-    return response.data;
+    try{
+      const response = await api.post('/clients/', data);
+      return response.data;
+    } catch(error){
+      alert(error.response.data.name[0])
+    }
   },
 
   // Update client

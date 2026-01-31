@@ -27,6 +27,14 @@ export const useClient = (id) => {
   });
 };
 
+export const useAllClients = () =>{
+  return useQuery({
+    queryKey: [QUERY_KEYS.clients, 'all'],
+    queryFn: () => clientsApi.listAll(),
+    staleTime: 60000,
+  });
+}
+
 export const useCreateClient = () => {
   const queryClient = useQueryClient();
   

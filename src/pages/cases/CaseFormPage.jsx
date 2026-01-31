@@ -22,7 +22,7 @@ import { ArrowLeftOutlined, SaveOutlined, TeamOutlined } from '@ant-design/icons
 import dayjs from 'dayjs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCase, useCreateCase, useUpdateCase, useCaseTypes, useCaseAssignments } from '../../hooks';
-import { useClients } from '../../hooks/useClients';
+import { useAllClients } from '../../hooks/useClients';
 import { firmsApi, casesApi } from '../../api';
 import { useAuthStore } from '../../stores';
 
@@ -65,7 +65,7 @@ const CaseFormPage = () => {
 
     const { data: caseData, isLoading: caseLoading } = useCase(id);
     const { data: caseTypes } = useCaseTypes();
-    const { data: clients } = useClients();
+    const { data: clients } = useAllClients();
     const { data: caseAssignments, refetch: refetchAssignments } = useCaseAssignments(id);
     const { mutate: createCase, isPending: creating } = useCreateCase();
     const { mutate: updateCase, isPending: updating } = useUpdateCase();

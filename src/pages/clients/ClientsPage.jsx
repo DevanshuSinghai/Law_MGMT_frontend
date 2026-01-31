@@ -2,8 +2,9 @@
  * Clients list page.
  */
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import {
     Table,
     Button,
@@ -31,9 +32,34 @@ const { Title, Text } = Typography;
 
 const ClientsPage = () => {
     const navigate = useNavigate();
-    const [search, setSearch] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const { data, isLoading, refetch } = useClients({ search });
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const pageSize = parseInt(searchParams.get('pageSize') || '10', 10);
+    const search = searchParams.get('search') || '';
+
+    const { data, isLoading, refetch } = useClients({
+        search,
+        page,
+        page_size: pageSize,
+    });
+
+    const handleTabChange = useCallback((pagination) => {
+        setSearchParams({
+            page: pagination.current.toString(),
+            pageSize: pagination.pageSize.toString(),
+            ...(search && { search }),
+        });
+    }, [search, setSearchParams]);
+
+    const handleSearch = useCallback((value) => {
+        setSearchParams({
+            page: '1',
+            pageSize: pageSize.toString(),
+            ...(value && { search: value }),
+        })
+    }, [pageSize, setSearchParams]);
+
     const { mutate: deleteClient } = useDeleteClient();
 
     const handleDelete = (id) => {
@@ -147,8 +173,12 @@ const ClientsPage = () => {
                 <Input
                     placeholder="Search clients..."
                     prefix={<SearchOutlined />}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    defaultValue={search}
+                    onPressEnter={(e) => handleSearch(e.target.value)}
+                    onBlur={(e) => handleSearch(e.target.value)}
+                    onChange={(e) => {
+                        if (!e.target.value) handleSearch('');
+                    }}
                     allowClear
                     style={{ maxWidth: 400 }}
                 />
@@ -164,7 +194,11 @@ const ClientsPage = () => {
                         total: data?.count,
                         showSizeChanger: true,
                         showTotal: (total) => `Total ${total} clients`,
+                        current: page,
+                        pageSize: pageSize,
+                        pageSizeOptions: ['10', '20', '50', '100'],
                     }}
+                    onChange={handleTabChange}
                     scroll={{ x: 700 }}
                 />
             </Card>

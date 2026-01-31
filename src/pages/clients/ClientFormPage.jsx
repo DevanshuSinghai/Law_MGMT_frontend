@@ -23,7 +23,9 @@ const { TextArea } = Input;
 
 const clientTypeOptions = [
     { value: 'individual', label: 'Individual' },
-    { value: 'company', label: 'Company' },
+    { value: 'Bank', label: 'Bank' },
+    { value: 'organization', label: 'Organization' },
+    { value: 'government', label: 'Government' },
 ];
 
 const ClientFormPage = () => {
