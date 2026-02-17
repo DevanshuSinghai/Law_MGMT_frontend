@@ -2,7 +2,7 @@
  * Cases list page.
  */
 
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     Table,
@@ -53,18 +53,50 @@ const priorityOptions = [
 const CasesPage = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-    const [search, setSearch] = useState('');
 
+    // Read ALL state from URL search params
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const pageSize = parseInt(searchParams.get('pageSize') || '20', 10);
+    const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || '';
     const priority = searchParams.get('priority') || '';
 
+    // Pass page + page_size to the backend API
     const { data, isLoading, refetch } = useCases({
-        search,
+        search: search || undefined,
         status: status || undefined,
         priority: priority || undefined,
+        page,
+        page_size: pageSize,
     });
     const { mutate: deleteCase } = useDeleteCase();
     const { data: caseTypes } = useCaseTypes();
+
+    // Helper to update search params while preserving existing ones
+    const updateParams = useCallback((updates) => {
+        const params = new URLSearchParams(searchParams);
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value) {
+                params.set(key, value.toString());
+            } else {
+                params.delete(key);
+            }
+        });
+        setSearchParams(params);
+    }, [searchParams, setSearchParams]);
+
+    // Table pagination/sorting change → update URL → triggers re-fetch
+    const handleTableChange = useCallback((pagination) => {
+        updateParams({
+            page: pagination.current.toString(),
+            pageSize: pagination.pageSize.toString(),
+        });
+    }, [updateParams]);
+
+    // Search handler (reset to page 1 on new search)
+    const handleSearch = useCallback((value) => {
+        updateParams({ search: value || '', page: '1' });
+    }, [updateParams]);
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -220,8 +252,12 @@ const CasesPage = () => {
                         <Input
                             placeholder="Search cases..."
                             prefix={<SearchOutlined />}
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            defaultValue={search}
+                            onPressEnter={(e) => handleSearch(e.target.value)}
+                            onBlur={(e) => handleSearch(e.target.value)}
+                            onChange={(e) => {
+                                if (!e.target.value) handleSearch('');
+                            }}
                             allowClear
                         />
                     </Col>
@@ -230,13 +266,7 @@ const CasesPage = () => {
                             style={{ width: '100%' }}
                             value={status}
                             onChange={(value) => {
-                                const params = new URLSearchParams(searchParams);
-                                if (value) {
-                                    params.set('status', value);
-                                } else {
-                                    params.delete('status');
-                                }
-                                setSearchParams(params);
+                                updateParams({ status: value || '', page: '1' });
                             }}
                             options={statusOptions}
                         />
@@ -246,13 +276,7 @@ const CasesPage = () => {
                             style={{ width: '100%' }}
                             value={priority}
                             onChange={(value) => {
-                                const params = new URLSearchParams(searchParams);
-                                if (value) {
-                                    params.set('priority', value);
-                                } else {
-                                    params.delete('priority');
-                                }
-                                setSearchParams(params);
+                                updateParams({ priority: value || '', page: '1' });
                             }}
                             options={priorityOptions}
                         />
@@ -268,9 +292,13 @@ const CasesPage = () => {
                     loading={isLoading}
                     pagination={{
                         total: data?.count,
+                        current: page,
+                        pageSize: pageSize,
                         showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
                         showTotal: (total) => `Total ${total} cases`,
                     }}
+                    onChange={handleTableChange}
                     scroll={{ x: 900 }}
                 />
             </Card>
