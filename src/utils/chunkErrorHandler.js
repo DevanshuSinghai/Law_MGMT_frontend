@@ -3,27 +3,24 @@
  * 
  * After a new deploy, old cached index.html may reference JS/CSS files
  * that no longer exist (because Vite generates new content hashes).
- * This causes ChunkLoadError / failed imports → infinite reload loops.
+ * This causes ChunkLoadError / failed imports.
  * 
  * This handler detects such errors and does a SINGLE hard refresh
- * (using sessionStorage to prevent infinite loops).
+ * per session (using sessionStorage counter to prevent infinite loops).
  */
 
-const RELOAD_KEY = 'chunk-error-reload';
-const RELOAD_EXPIRY_MS = 10_000; // 10 seconds window to prevent rapid reloads
+const RELOAD_KEY = 'chunk-error-reload-count';
+const MAX_RELOADS = 1; // Allow at most 1 auto-reload per session
 
 function shouldReload() {
-  const lastReload = sessionStorage.getItem(RELOAD_KEY);
-  if (!lastReload) return true;
-
-  const elapsed = Date.now() - parseInt(lastReload, 10);
-  // Only allow one reload within the expiry window
-  return elapsed > RELOAD_EXPIRY_MS;
+  const count = parseInt(sessionStorage.getItem(RELOAD_KEY) || '0', 10);
+  return count < MAX_RELOADS;
 }
 
 function forceReload() {
-  sessionStorage.setItem(RELOAD_KEY, Date.now().toString());
-  // true = reload from server, not from cache
+  const count = parseInt(sessionStorage.getItem(RELOAD_KEY) || '0', 10);
+  sessionStorage.setItem(RELOAD_KEY, (count + 1).toString());
+  // Reload from server, not from cache
   window.location.reload();
 }
 
@@ -61,12 +58,4 @@ export function initChunkErrorHandler() {
       forceReload();
     }
   }, true); // Use capture phase to catch resource load errors
-
-  // Clear the reload flag after successful page load
-  window.addEventListener('load', () => {
-    // If the page loaded successfully, clear the flag after a delay
-    setTimeout(() => {
-      sessionStorage.removeItem(RELOAD_KEY);
-    }, 2000);
-  });
 }

@@ -4,8 +4,9 @@
  */
 
 import { create } from 'zustand';
-import { persist,devtools } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
 import { authApi } from '../api';
+import { clearTokens as clearApiTokens } from '../api/client';
 
 const initialState = {
   user: null,
@@ -30,10 +31,13 @@ export const useAuthStore = create(
               const user = JSON.parse(userStr);
               set({ user, isAuthenticated: true, isLoading: false });
             } catch {
-              set({ isLoading: false });
+              // Invalid user data — clear everything and mark unauthenticated
+              clearApiTokens();
+              set({ user: null, isAuthenticated: false, isLoading: false });
             }
           } else {
-            set({ isLoading: false });
+            // No token or no user — ensure we're fully logged out
+            set({ user: null, isAuthenticated: false, isLoading: false });
           }
         },
 
@@ -86,13 +90,27 @@ export const useAuthStore = create(
           }
         },
 
-        // Logout action
+        // Logout action — clears everything including Zustand persist storage
         logout: async () => {
           try {
             await authApi.logout();
+          } catch {
+            // Ignore logout API errors
           } finally {
+            // Clear API tokens (accessToken, refreshToken, user keys)
+            clearApiTokens();
+            // Clear Zustand persist storage so stale auth isn't restored on reload
+            localStorage.removeItem('auth-storage');
+            // Reset store state
             set({ ...initialState, isLoading: false });
           }
+        },
+
+        // Force logout (called from Axios interceptor without API call)
+        forceLogout: () => {
+          clearApiTokens();
+          localStorage.removeItem('auth-storage');
+          set({ ...initialState, isLoading: false });
         },
 
         // Update user profile

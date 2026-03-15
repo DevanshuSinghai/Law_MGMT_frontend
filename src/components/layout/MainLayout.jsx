@@ -49,14 +49,14 @@ const MainLayout = () => {
             const mobile = window.innerWidth < 768;
             setIsMobile(mobile);
             // Auto-collapse sidebar on mobile
-            if (mobile && !sidebarCollapsed) {
+            if (mobile) {
                 setSidebarCollapsed(true);
             }
         };
         handleResize(); // Check on mount
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [setIsMobile, setSidebarCollapsed, sidebarCollapsed]);
+    }, [setIsMobile, setSidebarCollapsed]);
 
     // Update selected key based on location
     useEffect(() => {
