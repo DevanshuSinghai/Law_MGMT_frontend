@@ -27,6 +27,7 @@ import DocumentsPage from './pages/documents/DocumentsPage';
 import TasksPage from './pages/tasks/TasksPage';
 import TeamPage from './pages/team/TeamPage';
 import SettingsPage from './pages/SettingsPage';
+import LawConverterPage from './pages/tools/LawConverterPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -144,6 +145,9 @@ const AppRoutes = () => {
                 {/* Settings */}
                 <Route path="settings" element={<SettingsPage />} />
             </Route>
+
+            {/* Public tools (no auth required) */}
+            <Route path="/tools/law-converter" element={<LawConverterPage />} />
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
