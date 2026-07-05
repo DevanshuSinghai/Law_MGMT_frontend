@@ -4,9 +4,7 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Spin } from 'antd';
-import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from './stores';
-import { toolsAdminApi } from './api/toolsAdmin';
 
 // Layouts
 import MainLayout from './components/layout/MainLayout';
@@ -52,46 +50,6 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
-// Django admin login — micro-tools admin requires a staff account.
-const ADMIN_LOGIN_URL = 'https://legalpapers.in/law-mgmt/admin/login/';
-
-// Staff Route wrapper — only Django-admin-capable users. Access is verified
-// LIVE against the backend (IsAdminUser), so it doesn't depend on is_staff
-// being present in the cached login payload. Anyone else (not logged in, or
-// logged in without staff access) is sent to the Django admin login.
-const StaffRoute = ({ children }) => {
-    const { isAuthenticated, isLoading } = useAuthStore();
-
-    const { isSuccess, isError, isLoading: checking } = useQuery({
-        queryKey: ['tools-admin-check'],
-        queryFn: toolsAdminApi.adminCheck,
-        enabled: isAuthenticated,
-        retry: false,
-        staleTime: 5 * 60 * 1000,
-    });
-
-    const spinner = (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            <Spin size="large" />
-        </div>
-    );
-
-    if (isLoading) return spinner;
-
-    if (!isAuthenticated) {
-        window.location.href = ADMIN_LOGIN_URL;
-        return null;
-    }
-
-    if (checking) return spinner;
-
-    if (isError || !isSuccess) {
-        window.location.href = ADMIN_LOGIN_URL;
-        return null;
-    }
-
-    return children;
-};
 
 // Public Route wrapper (redirects to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
@@ -187,21 +145,12 @@ const AppRoutes = () => {
                 {/* Team */}
                 <Route path="team" element={<TeamPage />} />
 
+                {/* Micro-Tools admin — any logged-in user; writes are staff-gated on the backend */}
+                <Route path="tools-admin" element={<ToolsAdminPage />} />
+                <Route path="tools-admin/:section" element={<ResourceManagerPage />} />
+
                 {/* Settings */}
                 <Route path="settings" element={<SettingsPage />} />
-            </Route>
-
-            {/* Micro-Tools admin — Django-staff only; redirects to admin login otherwise */}
-            <Route
-                path="/tools-admin"
-                element={
-                    <StaffRoute>
-                        <MainLayout />
-                    </StaffRoute>
-                }
-            >
-                <Route index element={<ToolsAdminPage />} />
-                <Route path=":section" element={<ResourceManagerPage />} />
             </Route>
 
             {/* Public tools (no auth required) */}
