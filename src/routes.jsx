@@ -4,7 +4,9 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Spin } from 'antd';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from './stores';
+import { toolsAdminApi } from './api/toolsAdmin';
 
 // Layouts
 import MainLayout from './components/layout/MainLayout';
@@ -30,6 +32,33 @@ import SettingsPage from './pages/SettingsPage';
 import LawConverterPage from './pages/tools/LawConverterPage';
 import ToolsAdminPage from './pages/tools/ToolsAdminPage';
 import ResourceManagerPage from './pages/tools/ResourceManagerPage';
+
+// Micro-Tools admin gate — access requires a Django admin session (or a staff
+// JWT), verified live against the backend. Not public: without it, the user is
+// sent to the Django admin login. This is what the /admin/ dashboard link uses.
+const ADMIN_LOGIN_URL = 'https://legalpapers.in/law-mgmt/admin/login/?next=/law-mgmt/tools-admin';
+
+const AdminSessionRoute = ({ children }) => {
+    const { isLoading, isError, isSuccess } = useQuery({
+        queryKey: ['tools-admin-check'],
+        queryFn: toolsAdminApi.adminCheck,
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    const spinner = (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <Spin size="large" />
+        </div>
+    );
+
+    if (isLoading) return spinner;
+    if (isError || !isSuccess) {
+        window.location.href = ADMIN_LOGIN_URL;
+        return null;
+    }
+    return children;
+};
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -152,10 +181,9 @@ const AppRoutes = () => {
             {/* Public tools (no auth required) */}
             <Route path="/tools/law-converter" element={<LawConverterPage />} />
 
-            {/* Micro-Tools admin — public URL. Viewing is open; editing still
-                needs a staff JWT (enforced by the backend), so data stays safe. */}
-            <Route path="/tools-admin" element={<ToolsAdminPage />} />
-            <Route path="/tools-admin/:section" element={<ResourceManagerPage />} />
+            {/* Micro-Tools admin — Django-admin-session gated (not public) */}
+            <Route path="/tools-admin" element={<AdminSessionRoute><ToolsAdminPage /></AdminSessionRoute>} />
+            <Route path="/tools-admin/:section" element={<AdminSessionRoute><ResourceManagerPage /></AdminSessionRoute>} />
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

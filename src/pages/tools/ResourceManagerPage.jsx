@@ -153,10 +153,13 @@ const ResourceManagerPage = () => {
 
   const renderField = (f) => {
     const rules = f.required ? [{ required: true, message: `${f.label} is required` }] : [];
+    // Long inputs span both columns; short ones sit two-per-row.
+    const span = ['textarea', 'file', 'image'].includes(f.type) ? '1 / -1' : 'auto';
+    const cellStyle = { gridColumn: span, marginBottom: 8 };
     if (f.type === 'file' || f.type === 'image') {
       const current = editing && editing[f.name];
       return (
-        <Form.Item key={f.name} label={f.label} required={f.required} extra={f.help}>
+        <Form.Item key={f.name} label={f.label} required={f.required} extra={f.help} style={cellStyle}>
           {current ? (
             <div style={{ marginBottom: 8 }}>
               {f.type === 'image'
@@ -183,14 +186,14 @@ const ResourceManagerPage = () => {
     else if (f.type === 'select') control = <Select options={f.options} placeholder={f.placeholder} />;
     else if (f.type === 'date') control = <DatePicker style={{ width: '100%' }} format="DD MMM YYYY" />;
     else if (f.type === 'switch') return (
-      <Form.Item key={f.name} name={f.name} label={f.label} valuePropName="checked" initialValue={f.default} extra={f.help}>
+      <Form.Item key={f.name} name={f.name} label={f.label} valuePropName="checked" initialValue={f.default} extra={f.help} style={cellStyle}>
         <Switch />
       </Form.Item>
     );
     else control = <Input placeholder={f.placeholder} />;
 
     return (
-      <Form.Item key={f.name} name={f.name} label={f.label} rules={rules} initialValue={f.default} extra={f.help}>
+      <Form.Item key={f.name} name={f.name} label={f.label} rules={rules} initialValue={f.default} extra={f.help} style={cellStyle}>
         {control}
       </Form.Item>
     );
@@ -243,14 +246,17 @@ const ResourceManagerPage = () => {
         onOk={handleSubmit}
         confirmLoading={saveMutation.isPending}
         okText={editing ? 'Save' : 'Create'}
-        width={640}
+        width={760}
         destroyOnClose
+        styles={{ body: { maxHeight: '65vh', overflowY: 'auto', paddingRight: 12 } }}
       >
         {cfg.note ? (
           <Text type="secondary" style={{ display: 'block', marginBottom: 12, fontSize: 12.5 }}>{cfg.note}</Text>
         ) : null}
         <Form form={form} layout="vertical">
-          {cfg.fields.map(renderField)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: 16 }}>
+            {cfg.fields.map(renderField)}
+          </div>
         </Form>
       </Modal>
     </ToolsShell>
