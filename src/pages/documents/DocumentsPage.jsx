@@ -29,10 +29,12 @@ import {
     FilePdfOutlined,
     FileImageOutlined,
     EyeOutlined,
+    HistoryOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { useDocuments, useUploadDocument, useDeleteDocument, downloadDocument } from '../../hooks';
+import { useDocuments, useUploadDocument, useDeleteDocument, downloadDocument, viewDocument } from '../../hooks';
 import { useCases } from '../../hooks/useCases';
+import DocumentVersionsModal from './DocumentVersionsModal';
 
 const { Title, Text } = Typography;
 
@@ -54,7 +56,14 @@ const DocumentsPage = () => {
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
+    const [versionsDoc, setVersionsDoc] = useState(null);
     const [uploadForm] = Form.useForm();
+
+    // Open the document inline in a new tab (popup-safe: open sync, then fetch)
+    const handleView = (record) => {
+        const win = window.open('', '_blank');
+        viewDocument(record.id, win);
+    };
 
     const { data, isLoading, refetch } = useDocuments({
         search,
@@ -156,10 +165,24 @@ const DocumentsPage = () => {
             title: 'Actions',
             key: 'actions',
             width: 80,
+            // Stop row-click navigation when interacting with the actions menu
+            onCell: () => ({ onClick: (e) => e.stopPropagation() }),
             render: (_, record) => (
                 <Dropdown
                     menu={{
                         items: [
+                            {
+                                key: 'view',
+                                icon: <EyeOutlined />,
+                                label: 'View',
+                                onClick: () => handleView(record),
+                            },
+                            {
+                                key: 'versions',
+                                icon: <HistoryOutlined />,
+                                label: 'Version History',
+                                onClick: () => setVersionsDoc(record),
+                            },
                             {
                                 key: 'download',
                                 icon: <DownloadOutlined />,
@@ -234,9 +257,19 @@ const DocumentsPage = () => {
                         showSizeChanger: true,
                         showTotal: (total) => `Total ${total} documents`,
                     }}
+                    onRow={(record) => ({
+                        onClick: () => handleView(record),
+                        style: { cursor: 'pointer' },
+                    })}
                     scroll={{ x: 800 }}
                 />
             </Card>
+
+            <DocumentVersionsModal
+                open={!!versionsDoc}
+                document={versionsDoc}
+                onClose={() => setVersionsDoc(null)}
+            />
 
             {/* Upload Modal */}
             <Modal

@@ -54,10 +54,10 @@ export const documentsApi = {
     return response.data;
   },
 
-  // Get document versions
+  // Get document versions (list endpoint is paginated → unwrap .results)
   getVersions: async (id) => {
     const response = await api.get(`/documents/${id}/versions/`);
-    return response.data;
+    return response.data.results || response.data;
   },
 
   // Download a specific historical version

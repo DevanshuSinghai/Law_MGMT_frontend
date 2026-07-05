@@ -124,6 +124,7 @@ const ClientsPage = () => {
             title: 'Actions',
             key: 'actions',
             width: 80,
+            onCell: () => ({ onClick: (e) => e.stopPropagation() }),
             render: (_, record) => (
                 <Dropdown
                     menu={{
@@ -199,6 +200,10 @@ const ClientsPage = () => {
                         pageSizeOptions: ['10', '20', '50', '100'],
                     }}
                     onChange={handleTabChange}
+                    onRow={(record) => ({
+                        onClick: () => navigate(`/clients/${record.id}/edit`),
+                        style: { cursor: 'pointer' },
+                    })}
                     scroll={{ x: 700 }}
                 />
             </Card>

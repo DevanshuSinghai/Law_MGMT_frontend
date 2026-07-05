@@ -195,6 +195,7 @@ const CasesPage = () => {
             title: 'Actions',
             key: 'actions',
             width: 80,
+            onCell: () => ({ onClick: (e) => e.stopPropagation() }),
             render: (_, record) => (
                 <Dropdown
                     menu={{
@@ -299,6 +300,10 @@ const CasesPage = () => {
                         showTotal: (total) => `Total ${total} cases`,
                     }}
                     onChange={handleTableChange}
+                    onRow={(record) => ({
+                        onClick: () => navigate(`/cases/${record.id}`),
+                        style: { cursor: 'pointer' },
+                    })}
                     scroll={{ x: 900 }}
                 />
             </Card>

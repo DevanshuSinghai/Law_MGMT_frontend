@@ -116,3 +116,40 @@ export const downloadDocumentVersion = async (id, versionId, fileName) => {
     message.error('Failed to download version');
   }
 };
+
+// Open a blob in a browser tab. Callers must pass a window handle opened
+// synchronously in the click handler (via window.open('', '_blank')) so the
+// popup blocker allows it before the async fetch resolves.
+const openBlob = (blob, win) => {
+  const url = window.URL.createObjectURL(blob);
+  if (win) {
+    win.location = url;
+  } else {
+    win = window.open(url, '_blank');
+  }
+  // Revoke after the tab has had time to load the resource
+  setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+};
+
+// View the current file inline (PDF/images render in-browser; other types
+// fall back to the browser's default handling / download).
+export const viewDocument = async (id, win) => {
+  try {
+    const blob = await documentsApi.download(id);
+    openBlob(blob, win);
+  } catch {
+    if (win) win.close();
+    message.error('Failed to open document');
+  }
+};
+
+// View a specific historical version inline
+export const viewDocumentVersion = async (id, versionId, win) => {
+  try {
+    const blob = await documentsApi.downloadVersion(id, versionId);
+    openBlob(blob, win);
+  } catch {
+    if (win) win.close();
+    message.error('Failed to open version');
+  }
+};
