@@ -26,6 +26,7 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     MenuOutlined,
+    AppstoreOutlined,
 } from '@ant-design/icons';
 import { useAuthStore, useUIStore } from '../../stores';
 
@@ -113,6 +114,12 @@ const MainLayout = () => {
             icon: <UserOutlined />,
             label: 'Team',
             onClick: () => handleMenuClick('/team'),
+        }] : []),
+        ...(isManager() ? [{
+            key: 'tools-admin',
+            icon: <AppstoreOutlined />,
+            label: 'Micro-Tools',
+            onClick: () => handleMenuClick('/tools-admin'),
         }] : []),
         {
             key: 'settings',

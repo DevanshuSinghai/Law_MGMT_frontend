@@ -28,6 +28,8 @@ import TasksPage from './pages/tasks/TasksPage';
 import TeamPage from './pages/team/TeamPage';
 import SettingsPage from './pages/SettingsPage';
 import LawConverterPage from './pages/tools/LawConverterPage';
+import ToolsAdminPage from './pages/tools/ToolsAdminPage';
+import ResourceManagerPage from './pages/tools/ResourceManagerPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -141,6 +143,10 @@ const AppRoutes = () => {
 
                 {/* Team */}
                 <Route path="team" element={<TeamPage />} />
+
+                {/* Micro-Tools admin */}
+                <Route path="tools-admin" element={<ToolsAdminPage />} />
+                <Route path="tools-admin/:section" element={<ResourceManagerPage />} />
 
                 {/* Settings */}
                 <Route path="settings" element={<SettingsPage />} />
