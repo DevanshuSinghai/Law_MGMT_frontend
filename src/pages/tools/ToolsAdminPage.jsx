@@ -3,14 +3,15 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { Card, Col, Row, Typography } from 'antd';
+import { Card, Col, Row, Typography, Alert } from 'antd';
 import {
   BankOutlined, TeamOutlined, SafetyOutlined, ScheduleOutlined,
   NotificationOutlined, CalendarOutlined, FileOutlined, PictureOutlined,
 } from '@ant-design/icons';
 import { SECTIONS, SECTION_ORDER } from './resourceConfigs';
+import ToolsShell from './ToolsShell';
 
-const { Title, Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 const ICONS = {
   gavel: BankOutlined,
@@ -27,12 +28,14 @@ const ToolsAdminPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <Title level={3} style={{ marginTop: 0 }}>Micro-Tools</Title>
-      <Paragraph type="secondary" style={{ marginTop: -8 }}>
-        Manage the public reference data shown in the mobile app. Pick a section to add or edit entries.
-      </Paragraph>
-
+    <ToolsShell title="Micro-Tools" subtitle="Manage the public data shown in the mobile app">
+      <Alert
+        type="info"
+        showIcon
+        style={{ marginBottom: 20 }}
+        message="Pick a section to manage its entries"
+        description="Everything you add here appears in the mobile app's Micro-Tools. Each section explains what it is and how it will look."
+      />
       <Row gutter={[16, 16]}>
         {SECTION_ORDER.map((key) => {
           const s = SECTIONS[key];
@@ -60,7 +63,7 @@ const ToolsAdminPage = () => {
           );
         })}
       </Row>
-    </div>
+    </ToolsShell>
   );
 };
 

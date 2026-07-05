@@ -9,18 +9,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import {
   Table, Button, Input, Modal, Form, Select, DatePicker, InputNumber, Switch,
-  Upload, Tag, Typography, Row, Col, Card, Space, message, Image,
+  Upload, Tag, Typography, Card, message, Image, Alert, Dropdown,
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, MoreOutlined, SearchOutlined,
-  ArrowLeftOutlined, UploadOutlined, LinkOutlined,
+  UploadOutlined, LinkOutlined,
 } from '@ant-design/icons';
-import { Dropdown } from 'antd';
 import dayjs from 'dayjs';
 import { SECTIONS } from './resourceConfigs';
 import { toolsAdminApi } from '../../api/toolsAdmin';
+import ToolsShell from './ToolsShell';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const normFile = (e) => (Array.isArray(e) ? e : e?.fileList);
 
 const ResourceManagerPage = () => {
@@ -156,7 +156,7 @@ const ResourceManagerPage = () => {
     if (f.type === 'file' || f.type === 'image') {
       const current = editing && editing[f.name];
       return (
-        <Form.Item key={f.name} label={f.label} required={f.required}>
+        <Form.Item key={f.name} label={f.label} required={f.required} extra={f.help}>
           {current ? (
             <div style={{ marginBottom: 8 }}>
               {f.type === 'image'
@@ -183,32 +183,29 @@ const ResourceManagerPage = () => {
     else if (f.type === 'select') control = <Select options={f.options} placeholder={f.placeholder} />;
     else if (f.type === 'date') control = <DatePicker style={{ width: '100%' }} format="DD MMM YYYY" />;
     else if (f.type === 'switch') return (
-      <Form.Item key={f.name} name={f.name} label={f.label} valuePropName="checked" initialValue={f.default}>
+      <Form.Item key={f.name} name={f.name} label={f.label} valuePropName="checked" initialValue={f.default} extra={f.help}>
         <Switch />
       </Form.Item>
     );
     else control = <Input placeholder={f.placeholder} />;
 
     return (
-      <Form.Item key={f.name} name={f.name} label={f.label} rules={rules} initialValue={f.default}>
+      <Form.Item key={f.name} name={f.name} label={f.label} rules={rules} initialValue={f.default} extra={f.help}>
         {control}
       </Form.Item>
     );
   };
 
   return (
-    <div>
-      <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-        <Col>
-          <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/tools-admin')} />
-            <Title level={3} style={{ margin: 0 }}>{cfg.title}</Title>
-          </Space>
-        </Col>
-        <Col>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>Add</Button>
-        </Col>
-      </Row>
+    <ToolsShell
+      title={cfg.title}
+      subtitle={cfg.description}
+      onBack={() => navigate('/tools-admin')}
+      extra={<Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>Add</Button>}
+    >
+      {cfg.note ? (
+        <Alert type="info" showIcon style={{ marginBottom: 16 }} message="About this section" description={cfg.note} />
+      ) : null}
 
       <Card style={{ marginBottom: 16 }}>
         <Input
@@ -249,11 +246,14 @@ const ResourceManagerPage = () => {
         width={640}
         destroyOnClose
       >
-        <Form form={form} layout="vertical" style={{ marginTop: 12 }}>
+        {cfg.note ? (
+          <Text type="secondary" style={{ display: 'block', marginBottom: 12, fontSize: 12.5 }}>{cfg.note}</Text>
+        ) : null}
+        <Form form={form} layout="vertical">
           {cfg.fields.map(renderField)}
         </Form>
       </Modal>
-    </div>
+    </ToolsShell>
   );
 };
 
