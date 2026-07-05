@@ -115,7 +115,7 @@ const MainLayout = () => {
             label: 'Team',
             onClick: () => handleMenuClick('/team'),
         }] : []),
-        ...(isManager() ? [{
+        ...((user?.is_staff || user?.is_superuser) ? [{
             key: 'tools-admin',
             icon: <AppstoreOutlined />,
             label: 'Micro-Tools',

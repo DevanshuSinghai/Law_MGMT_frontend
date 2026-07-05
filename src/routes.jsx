@@ -50,6 +50,31 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
+// Django admin login — micro-tools admin requires a staff account.
+const ADMIN_LOGIN_URL = 'https://legalpapers.in/law-mgmt/admin/login/';
+
+// Staff Route wrapper — only Django-admin-capable users. Anyone else
+// (not logged in, or logged in without staff access) is sent to admin login.
+const StaffRoute = ({ children }) => {
+    const { user, isAuthenticated, isLoading } = useAuthStore();
+
+    if (isLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    const canAdmin = isAuthenticated && (user?.is_staff || user?.is_superuser);
+    if (!canAdmin) {
+        window.location.href = ADMIN_LOGIN_URL;
+        return null;
+    }
+
+    return children;
+};
+
 // Public Route wrapper (redirects to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
     const { isAuthenticated, isLoading } = useAuthStore();
@@ -144,12 +169,21 @@ const AppRoutes = () => {
                 {/* Team */}
                 <Route path="team" element={<TeamPage />} />
 
-                {/* Micro-Tools admin */}
-                <Route path="tools-admin" element={<ToolsAdminPage />} />
-                <Route path="tools-admin/:section" element={<ResourceManagerPage />} />
-
                 {/* Settings */}
                 <Route path="settings" element={<SettingsPage />} />
+            </Route>
+
+            {/* Micro-Tools admin — Django-staff only; redirects to admin login otherwise */}
+            <Route
+                path="/tools-admin"
+                element={
+                    <StaffRoute>
+                        <MainLayout />
+                    </StaffRoute>
+                }
+            >
+                <Route index element={<ToolsAdminPage />} />
+                <Route path=":section" element={<ResourceManagerPage />} />
             </Route>
 
             {/* Public tools (no auth required) */}
