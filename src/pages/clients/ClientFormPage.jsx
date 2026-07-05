@@ -23,7 +23,7 @@ const { TextArea } = Input;
 
 const clientTypeOptions = [
     { value: 'individual', label: 'Individual' },
-    { value: 'Bank', label: 'Bank' },
+    { value: 'bank', label: 'Bank' },
     { value: 'organization', label: 'Organization' },
     { value: 'government', label: 'Government' },
 ];
