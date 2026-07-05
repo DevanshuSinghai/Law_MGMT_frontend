@@ -24,32 +24,29 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      # Ensure target directory exists (important)
-      - name: Prepare target directory on VPS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          script: |
-            rm -rf /var/www/law-mgmt/frontend/dist
-            mkdir -p /var/www/law-mgmt/frontend/dist
+      - name: Verify build output
+        run: |
+          set -euo pipefail
+          test -f dist/index.html
+          echo "dist contents:"
+          ls -la dist
 
-      - name: Deploy to VPS
-        uses: appleboy/scp-action@v0.1.4
+      # Bundle the build into a single tarball — avoids scp glob/strip pitfalls.
+      - name: Package build
+        run: tar -czf dist.tar.gz -C dist .
+
+      - name: Upload tarball to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          source: "dist/*"
-          target: "/var/www/law-mgmt/frontend/dist/"
-          strip_components: 1
+          source: "dist.tar.gz"
+          target: "/tmp/law-mgmt-frontend/"
           overwrite: true
-          rm: false
 
-      - name: Reload Nginx
+      - name: Extract, swap, reload
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -57,4 +54,21 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
+            set -euo pipefail
+            DEST=/var/www/law-mgmt/frontend/dist
+            TAR=/tmp/law-mgmt-frontend/dist.tar.gz
+            test -f "$TAR"
+            # Deploy into a fresh dir, then atomically swap so users never see a half-copy.
+            rm -rf "${DEST}.new"
+            mkdir -p "${DEST}.new"
+            tar -xzf "$TAR" -C "${DEST}.new"
+            test -f "${DEST}.new/index.html"
+            rm -rf "${DEST}.old"
+            if [ -d "$DEST" ]; then mv "$DEST" "${DEST}.old"; fi
+            mv "${DEST}.new" "$DEST"
+            rm -rf "${DEST}.old" "$TAR"
+            # Static files need no reload, but re-test + reload keeps config drift honest.
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S nginx -t
             echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S systemctl reload nginx
+            echo "Deployed. index.html:"
+            ls -l "$DEST/index.html"
