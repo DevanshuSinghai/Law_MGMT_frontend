@@ -21,6 +21,9 @@ const toFormData = (data) => {
 const multipartConfig = { headers: { 'Content-Type': undefined } };
 
 export const toolsAdminApi = {
+  // 200 only for Django-staff users; used to gate the dashboard.
+  adminCheck: () => api.get('/tools/admin-check/').then((r) => r.data),
+
   list: (endpoint, params = {}) =>
     api.get(`/tools/${endpoint}/`, { params }).then((r) => r.data),
 

@@ -4,7 +4,9 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Spin } from 'antd';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from './stores';
+import { toolsAdminApi } from './api/toolsAdmin';
 
 // Layouts
 import MainLayout from './components/layout/MainLayout';
@@ -53,21 +55,37 @@ const ProtectedRoute = ({ children }) => {
 // Django admin login — micro-tools admin requires a staff account.
 const ADMIN_LOGIN_URL = 'https://legalpapers.in/law-mgmt/admin/login/';
 
-// Staff Route wrapper — only Django-admin-capable users. Anyone else
-// (not logged in, or logged in without staff access) is sent to admin login.
+// Staff Route wrapper — only Django-admin-capable users. Access is verified
+// LIVE against the backend (IsAdminUser), so it doesn't depend on is_staff
+// being present in the cached login payload. Anyone else (not logged in, or
+// logged in without staff access) is sent to the Django admin login.
 const StaffRoute = ({ children }) => {
-    const { user, isAuthenticated, isLoading } = useAuthStore();
+    const { isAuthenticated, isLoading } = useAuthStore();
 
-    if (isLoading) {
-        return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <Spin size="large" />
-            </div>
-        );
+    const { isSuccess, isError, isLoading: checking } = useQuery({
+        queryKey: ['tools-admin-check'],
+        queryFn: toolsAdminApi.adminCheck,
+        enabled: isAuthenticated,
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    const spinner = (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <Spin size="large" />
+        </div>
+    );
+
+    if (isLoading) return spinner;
+
+    if (!isAuthenticated) {
+        window.location.href = ADMIN_LOGIN_URL;
+        return null;
     }
 
-    const canAdmin = isAuthenticated && (user?.is_staff || user?.is_superuser);
-    if (!canAdmin) {
+    if (checking) return spinner;
+
+    if (isError || !isSuccess) {
         window.location.href = ADMIN_LOGIN_URL;
         return null;
     }

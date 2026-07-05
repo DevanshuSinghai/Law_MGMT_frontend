@@ -28,7 +28,9 @@ import {
     MenuOutlined,
     AppstoreOutlined,
 } from '@ant-design/icons';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore, useUIStore } from '../../stores';
+import { toolsAdminApi } from '../../api/toolsAdmin';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -40,6 +42,14 @@ const MainLayout = () => {
 
     const { user, logout, isManager } = useAuthStore();
     const { sidebarCollapsed, toggleSidebar, setSidebarCollapsed, isMobile, setIsMobile } = useUIStore();
+
+    // Live staff check (same gate as Django admin) — shared query key with StaffRoute.
+    const { isSuccess: isStaff } = useQuery({
+        queryKey: ['tools-admin-check'],
+        queryFn: toolsAdminApi.adminCheck,
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+    });
 
     const [selectedKey, setSelectedKey] = useState('dashboard');
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -115,7 +125,7 @@ const MainLayout = () => {
             label: 'Team',
             onClick: () => handleMenuClick('/team'),
         }] : []),
-        ...((user?.is_staff || user?.is_superuser) ? [{
+        ...(isStaff ? [{
             key: 'tools-admin',
             icon: <AppstoreOutlined />,
             label: 'Micro-Tools',
