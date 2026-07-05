@@ -31,6 +31,15 @@ import LawConverterPage from './pages/tools/LawConverterPage';
 import ToolsAdminPage from './pages/tools/ToolsAdminPage';
 import ResourceManagerPage from './pages/tools/ResourceManagerPage';
 
+// Staff-only wrapper — Micro-Tools admin is for the team (Django-staff users),
+// not every tenant. Uses the cached user flags (superuser is always present in
+// the login payload; is_staff once the account has it). Non-staff go to dashboard.
+const StaffOnly = ({ children }) => {
+    const { user } = useAuthStore();
+    if (user?.is_staff || user?.is_superuser) return children;
+    return <Navigate to="/dashboard" replace />;
+};
+
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, isLoading } = useAuthStore();
@@ -145,9 +154,9 @@ const AppRoutes = () => {
                 {/* Team */}
                 <Route path="team" element={<TeamPage />} />
 
-                {/* Micro-Tools admin — any logged-in user; writes are staff-gated on the backend */}
-                <Route path="tools-admin" element={<ToolsAdminPage />} />
-                <Route path="tools-admin/:section" element={<ResourceManagerPage />} />
+                {/* Micro-Tools admin — team (Django-staff) only */}
+                <Route path="tools-admin" element={<StaffOnly><ToolsAdminPage /></StaffOnly>} />
+                <Route path="tools-admin/:section" element={<StaffOnly><ResourceManagerPage /></StaffOnly>} />
 
                 {/* Settings */}
                 <Route path="settings" element={<SettingsPage />} />

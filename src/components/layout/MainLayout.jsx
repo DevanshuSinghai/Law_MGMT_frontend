@@ -115,12 +115,12 @@ const MainLayout = () => {
             label: 'Team',
             onClick: () => handleMenuClick('/team'),
         }] : []),
-        {
+        ...((user?.is_staff || user?.is_superuser) ? [{
             key: 'tools-admin',
             icon: <AppstoreOutlined />,
             label: 'Micro-Tools',
             onClick: () => handleMenuClick('/tools-admin'),
-        },
+        }] : []),
         {
             key: 'settings',
             icon: <SettingOutlined />,
