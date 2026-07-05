@@ -60,6 +60,14 @@ export const documentsApi = {
     return response.data;
   },
 
+  // Download a specific historical version
+  downloadVersion: async (id, versionId) => {
+    const response = await api.get(`/documents/${id}/versions/${versionId}/download/`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
   // Upload new version
   uploadVersion: async (id, file, changeNotes = '') => {
     const formData = new FormData();

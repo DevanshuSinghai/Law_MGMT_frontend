@@ -85,19 +85,34 @@ export const useUploadVersion = () => {
   });
 };
 
-// Helper to trigger download
+// Trigger a browser download from a blob
+const saveBlob = (blob, fileName) => {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName || 'document';
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+};
+
+// Helper to trigger download of the current file
 export const downloadDocument = async (id, fileName) => {
   try {
     const blob = await documentsApi.download(id);
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName || 'document';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    saveBlob(blob, fileName);
   } catch (error) {
     message.error('Failed to download document');
+  }
+};
+
+// Helper to trigger download of a specific historical version
+export const downloadDocumentVersion = async (id, versionId, fileName) => {
+  try {
+    const blob = await documentsApi.downloadVersion(id, versionId);
+    saveBlob(blob, fileName);
+  } catch (error) {
+    message.error('Failed to download version');
   }
 };
