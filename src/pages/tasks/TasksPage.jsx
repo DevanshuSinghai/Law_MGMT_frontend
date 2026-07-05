@@ -222,6 +222,7 @@ const TasksPage = () => {
             title: 'Actions',
             key: 'actions',
             width: 80,
+            onCell: () => ({ onClick: (e) => e.stopPropagation() }),
             render: (_, record) => (
                 <Dropdown
                     menu={{
@@ -327,6 +328,10 @@ const TasksPage = () => {
                         showSizeChanger: true,
                         showTotal: (total) => `Total ${total} tasks`,
                     }}
+                    onRow={(record) => ({
+                        onClick: () => openEditModal(record),
+                        style: { cursor: 'pointer' },
+                    })}
                     scroll={{ x: 800 }}
                 />
             </Card>
