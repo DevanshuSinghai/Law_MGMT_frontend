@@ -83,6 +83,15 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Auth endpoints: a 401 = bad credentials, not an expired session. Let it
+    // reach the caller (login/register form) instead of running the
+    // refresh/forceLogout machinery, which hard-redirects and reloads the whole
+    // app — wiping the error before the user can see it.
+    const reqUrl = originalRequest?.url || '';
+    if (/\/auth\/(login|register|refresh)\/?$/.test(reqUrl) || /\/firms\/register\/?$/.test(reqUrl)) {
+      return Promise.reject(error);
+    }
+
     // If this request has already been retried, don't retry again
     if (originalRequest._retry) {
       return Promise.reject(error);
