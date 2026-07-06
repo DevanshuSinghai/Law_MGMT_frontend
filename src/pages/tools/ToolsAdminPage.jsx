@@ -3,10 +3,11 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { Card, Col, Row, Typography, Alert } from 'antd';
+import { Card, Col, Row, Typography, Alert, Button } from 'antd';
 import {
   BankOutlined, TeamOutlined, SafetyOutlined, ScheduleOutlined,
   NotificationOutlined, CalendarOutlined, FileOutlined, PictureOutlined,
+  DashboardOutlined,
 } from '@ant-design/icons';
 import { SECTIONS, SECTION_ORDER } from './resourceConfigs';
 import ToolsShell from './ToolsShell';
@@ -28,7 +29,18 @@ const ToolsAdminPage = () => {
   const navigate = useNavigate();
 
   return (
-    <ToolsShell title="Micro-Tools" subtitle="Manage the public data shown in the mobile app">
+    <ToolsShell
+      title="Micro-Tools"
+      subtitle="Manage the public data shown in the mobile app"
+      extra={
+        <Button
+          icon={<DashboardOutlined />}
+          onClick={() => navigate('/dashboard')}
+        >
+          Go to Dashboard
+        </Button>
+      }
+    >
       <Alert
         type="info"
         showIcon

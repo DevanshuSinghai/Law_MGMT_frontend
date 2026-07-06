@@ -36,7 +36,7 @@ const LoginPage = () => {
 
             {(error || localError) && (
                 <Alert
-                    title={error || localError}
+                    message={error || localError}
                     type="error"
                     showIcon
                     style={{ marginBottom: 24 }}
