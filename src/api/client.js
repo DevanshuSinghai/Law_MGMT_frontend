@@ -102,8 +102,8 @@ api.interceptors.response.use(
       // Dynamically import to avoid circular deps; use forceLogout (no API call)
       const { useAuthStore } = await import('../stores/authStore');
       useAuthStore.getState().forceLogout();
-      // Navigate via React Router-compatible method (no hard reload)
-      window.location.replace('/law-mgmt/login');
+      // No hard redirect: forceLogout flips isAuthenticated, and ProtectedRoute
+      // reactively renders <Navigate to="/login" />. Avoids a full page reload.
       return Promise.reject(error);
     }
 
@@ -148,8 +148,8 @@ api.interceptors.response.use(
 
       const { useAuthStore } = await import('../stores/authStore');
       useAuthStore.getState().forceLogout();
-      // Use replace so there's no back-button loop
-      window.location.replace('/law-mgmt/login');
+      // No hard redirect — ProtectedRoute reacts to the logged-out state and
+      // renders <Navigate to="/login" />, so no full page reload.
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
