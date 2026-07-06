@@ -23,8 +23,14 @@ const ForgotPasswordPage = () => {
             await authApi.requestPasswordReset(values.email);
             setIsSuccess(true);
         } catch (err) {
-            alert("No account found with that email.")
-            setError(err.response?.data?.error || 'Failed to send reset email. Either User not exists or some error occurred.');
+            const status = err.response?.status;
+            const backendMsg = err.response?.data?.message || err.response?.data?.error;
+            if (status === 500) {
+                // Email couldn't be sent (SMTP). Don't blame the user's address.
+                setError("We couldn't send the reset email right now. Please try again later or contact support.");
+            } else {
+                setError(backendMsg || 'Failed to send reset email. Please try again.');
+            }
         } finally {
             setIsLoading(false);
         }
