@@ -168,7 +168,7 @@ const MainLayout = () => {
                         whiteSpace: 'nowrap',
                     }}
                 >
-                    Legal Management
+                    NyayFlow
                 </Text>
             </div>
             <Menu
@@ -218,7 +218,7 @@ const MainLayout = () => {
                                 whiteSpace: 'nowrap',
                             }}
                         >
-                            {sidebarCollapsed ? 'LM' : 'Legal Management'}
+                            {sidebarCollapsed ? 'NF' : 'NyayFlow'}
                         </Text>
                     </div>
                     <Menu
