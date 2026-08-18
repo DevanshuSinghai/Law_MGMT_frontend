@@ -28,6 +28,18 @@ const clientTypeOptions = [
     { value: 'government', label: 'Government' },
 ];
 
+// Must stay in step with Client.ID_TYPE_CHOICES on the backend. Aadhaar is
+// deliberately not offered - the server rejects Aadhaar numbers outright.
+const idTypeOptions = [
+    { value: 'pan', label: 'PAN' },
+    { value: 'passport', label: 'Passport' },
+    { value: 'voter_id', label: 'Voter ID (EPIC)' },
+    { value: 'driving_licence', label: 'Driving Licence' },
+    { value: 'cin', label: 'Company Registration (CIN)' },
+    { value: 'gstin', label: 'GSTIN' },
+    { value: 'other', label: 'Other' },
+];
+
 const ClientFormPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -148,10 +160,18 @@ const ClientFormPage = () => {
                     <Col xs={24} lg={12}>
                         <Card title="Identification">
                             <Form.Item name="id_type" label="ID Type">
-                                <Input placeholder="e.g., Passport, Driver's License" />
+                                <Select
+                                    options={idTypeOptions}
+                                    placeholder="Select ID type"
+                                    allowClear
+                                />
                             </Form.Item>
 
-                            <Form.Item name="id_number" label="ID Number">
+                            <Form.Item
+                                name="id_number"
+                                label="ID Number"
+                                extra="Aadhaar numbers are not accepted."
+                            >
                                 <Input placeholder="ID number" />
                             </Form.Item>
                         </Card>
