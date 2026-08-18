@@ -28,9 +28,9 @@ const clientTypeOptions = [
     { value: 'government', label: 'Government' },
 ];
 
-// Must stay in step with Client.ID_TYPE_CHOICES on the backend. Aadhaar is
-// deliberately not offered - the server rejects Aadhaar numbers outright.
+// Must stay in step with Client.ID_TYPE_CHOICES on the backend.
 const idTypeOptions = [
+    { value: 'aadhaar', label: 'Aadhaar' },
     { value: 'pan', label: 'PAN' },
     { value: 'passport', label: 'Passport' },
     { value: 'voter_id', label: 'Voter ID (EPIC)' },
@@ -170,7 +170,7 @@ const ClientFormPage = () => {
                             <Form.Item
                                 name="id_number"
                                 label="ID Number"
-                                extra="Aadhaar numbers are not accepted."
+                                extra="Aadhaar is checked against its checksum and shown masked outside this form."
                             >
                                 <Input placeholder="ID number" />
                             </Form.Item>
