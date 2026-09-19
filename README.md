@@ -78,3 +78,27 @@ The app will be available at http://localhost:5173
 
 - **Zustand** - Auth persistence, UI state
 - **React Query** - Data caching, optimistic updates
+
+## Production
+
+**Domain:** `lawyerflow.in`, served from the root path (`vite.config.js`
+`base: '/'`, `BrowserRouter` in `src/App.jsx` with no `basename`). The old
+`legalpapers.in/law-mgmt` subpath deployment is retired, no redirect.
+
+**Architecture:** Static build served by Nginx from the same vhost as the
+backend API — `/etc/nginx/sites-available/lawyerflow.in.conf` on the VPS
+(`147.93.96.72`).
+
+**Deploy:** GitHub Actions, `appleboy/scp-action`. VPS login user is
+`lf-server` (not `rahul`). Two separate keys, not shared:
+- `VPS_SSH_KEY` (Actions secret) — logs into the VPS as `lf-server`.
+- `~/.ssh/deploy_lawmgmt` on the server — a read-only GitHub deploy key this
+  repo uses for `git pull` during deploy.
+
+**Gotcha — the one that bit us:** `vite.config.js`'s `base` and the
+`<BrowserRouter basename>` prop in `src/App.jsx` are two *separate* hardcoded
+values. Changing one without the other renders a blank page with a console
+warning (`Router basename="..."  is not able to match the URL`). If the
+deploy path or domain changes again, update both together, and update the
+backend's `FORCE_SCRIPT_NAME` / `MEDIA_URL` / `STATIC_URL` /
+`CORS_ALLOWED_ORIGINS` in lockstep too (see backend README).
