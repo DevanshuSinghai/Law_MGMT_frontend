@@ -515,7 +515,7 @@ export default function LawConverterPage() {
                     This tool is for informational purposes only — always verify with official gazette notifications.
                 </p>
                 <p>
-                    © {new Date().getFullYear()} NyayFlow | Free Public Tool
+                    © {new Date().getFullYear()} LawyerFlow | Free Public Tool
                 </p>
             </footer>
         </div>

@@ -168,7 +168,7 @@ const MainLayout = () => {
                         whiteSpace: 'nowrap',
                     }}
                 >
-                    NyayFlow
+                    LawyerFlow
                 </Text>
             </div>
             <Menu
@@ -218,7 +218,7 @@ const MainLayout = () => {
                                 whiteSpace: 'nowrap',
                             }}
                         >
-                            {sidebarCollapsed ? 'NF' : 'NyayFlow'}
+                            {sidebarCollapsed ? 'LF' : 'LawyerFlow'}
                         </Text>
                     </div>
                     <Menu
