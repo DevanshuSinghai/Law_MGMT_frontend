@@ -95,7 +95,7 @@ function useDocumentMeta() {
             canonical.setAttribute('rel', 'canonical');
             document.head.appendChild(canonical);
         }
-        canonical.setAttribute('href', window.location.origin + '/law-mgmt/tools/law-converter');
+        canonical.setAttribute('href', window.location.origin + '/tools/law-converter');
 
         return () => {
             createdElements.forEach((el) => el.remove());

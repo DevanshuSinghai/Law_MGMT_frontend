@@ -36,7 +36,7 @@ import ResourceManagerPage from './pages/tools/ResourceManagerPage';
 // Micro-Tools admin gate — access requires a Django admin session (or a staff
 // JWT), verified live against the backend. Not public: without it, the user is
 // sent to the Django admin login. This is what the /admin/ dashboard link uses.
-const ADMIN_LOGIN_URL = 'https://legalpapers.in/law-mgmt/admin/login/?next=/law-mgmt/tools-admin';
+const ADMIN_LOGIN_URL = 'https://lawyerflow.in/admin/login/';
 
 const AdminSessionRoute = ({ children }) => {
     const { isLoading, isError, isSuccess } = useQuery({
