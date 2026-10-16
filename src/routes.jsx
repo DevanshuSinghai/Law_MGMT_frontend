@@ -2,6 +2,7 @@
  * Application routes configuration.
  */
 
+import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Spin } from 'antd';
 import { useQuery } from '@tanstack/react-query';
@@ -83,8 +84,12 @@ const ProtectedRoute = ({ children }) => {
 // Public Route wrapper (redirects to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
     const { isAuthenticated, isLoading } = useAuthStore();
+    // Spin only for the initial auth check. login/register also set isLoading;
+    // swapping the page for a spinner then would unmount the form and wipe its fields.
+    const [initialized, setInitialized] = useState(!isLoading);
+    if (!isLoading && !initialized) setInitialized(true);
 
-    if (isLoading) {
+    if (isLoading && !initialized) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <Spin size="large" />
